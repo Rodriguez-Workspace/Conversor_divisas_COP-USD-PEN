@@ -86,13 +86,6 @@
               aria-label="Monto en Dólares Estadounidenses"
             >
           </div>
-          <div class="preset-bar">
-            <button type="button" class="preset-btn" data-currency="USD" data-amount="10">+10</button>
-            <button type="button" class="preset-btn" data-currency="USD" data-amount="50">+50</button>
-            <button type="button" class="preset-btn" data-currency="USD" data-amount="100">100</button>
-            <button type="button" class="preset-btn" data-currency="USD" data-amount="500">500</button>
-            <button type="button" class="preset-btn" data-currency="USD" data-amount="1000">1K</button>
-          </div>
         </article>
 
         <!-- Tarjeta COP -->
@@ -116,13 +109,6 @@
               autocomplete="off"
               aria-label="Monto en Pesos Colombianos"
             >
-          </div>
-          <div class="preset-bar">
-            <button type="button" class="preset-btn" data-currency="COP" data-amount="50000">50K</button>
-            <button type="button" class="preset-btn" data-currency="COP" data-amount="100000">100K</button>
-            <button type="button" class="preset-btn" data-currency="COP" data-amount="500000">500K</button>
-            <button type="button" class="preset-btn" data-currency="COP" data-amount="1000000">1M</button>
-            <button type="button" class="preset-btn" data-currency="COP" data-amount="2000000">2M</button>
           </div>
         </article>
 
@@ -148,13 +134,6 @@
               aria-label="Monto en Soles Peruanos"
             >
           </div>
-          <div class="preset-bar">
-            <button type="button" class="preset-btn" data-currency="PEN" data-amount="50">+50</button>
-            <button type="button" class="preset-btn" data-currency="PEN" data-amount="100">100</button>
-            <button type="button" class="preset-btn" data-currency="PEN" data-amount="200">200</button>
-            <button type="button" class="preset-btn" data-currency="PEN" data-amount="500">500</button>
-            <button type="button" class="preset-btn" data-currency="PEN" data-amount="1000">1K</button>
-          </div>
         </article>
 
       </section>
@@ -172,38 +151,11 @@
         </div>
       </section>
 
-      <!-- Configuración de Margen Conservador (Protección Cambiaria) -->
-      <section class="settings-section">
-        <div class="section-header">
-          <div class="section-title-wrap">
-            <span class="section-title">Margen Conservador de Seguridad</span>
-            <span class="section-desc">Ajusta un colchón de protección cambiaria para compras o presupuestos</span>
-          </div>
-          <label class="switch" aria-label="Activar margen conservador">
-            <input type="checkbox" id="margin-toggle">
-            <span class="slider"></span>
-          </label>
-        </div>
-
-        <div id="margin-info-box" class="margin-controls" style="display: none;">
-          <div class="slider-row">
-            <input type="range" id="margin-slider" class="range-input" min="0.5" max="5.0" step="0.5" value="1.0">
-            <span id="margin-value-display" class="range-value">1.0%</span>
-          </div>
-          <p class="margin-help-text">
-            Aplica un spread de seguridad conservador sobre la tasa interbancaria, simulando costos reales de adquisición o variabilidad del mercado.
-          </p>
-        </div>
-      </section>
-
       <!-- Panel de Estado de Caché y Auditoría de Datos -->
       <section class="status-panel" aria-label="Estado de sincronización">
         <div class="status-meta">
           <span id="source-badge" class="status-badge badge-server-cache">Iniciando...</span>
           <span class="status-time" id="sync-time">sincronizando...</span>
-        </div>
-        <div style="font-size: 0.7rem; color: var(--text-subtle);">
-          TTL: 1h (RAM) + Offline
         </div>
       </section>
 

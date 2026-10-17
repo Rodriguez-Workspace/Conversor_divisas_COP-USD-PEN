@@ -31,12 +31,6 @@
     btnRefresh: document.getElementById('btn-refresh'),
     refreshIcon: document.getElementById('refresh-icon'),
 
-    // Control de margen conservador
-    marginToggle: document.getElementById('margin-toggle'),
-    marginSlider: document.getElementById('margin-slider'),
-    marginValueDisplay: document.getElementById('margin-value-display'),
-    marginInfoBox: document.getElementById('margin-info-box'),
-
     // Banner de instalación PWA
     installBanner: document.getElementById('install-banner'),
     btnInstall: document.getElementById('btn-install'),
@@ -68,13 +62,12 @@
   /**
    * Actualiza las tarjetas informativas de tasas cruzadas en la interfaz
    */
-  function updateRatesDisplay(rates, marginPercent = 0, isMarginActive = false) {
+  function updateRatesDisplay(rates) {
     if (!rates || !rates.COP || !rates.PEN) return;
 
-    const factor = isMarginActive ? (1 - marginPercent / 100) : 1;
-    const usdCop = (rates.COP * factor).toLocaleString('es-CO', { maximumFractionDigits: 2 });
-    const usdPen = (rates.PEN * factor).toLocaleString('es-PE', { maximumFractionDigits: 3 });
-    const penCop = ((rates.COP / rates.PEN) * factor).toLocaleString('es-CO', { maximumFractionDigits: 1 });
+    const usdCop = rates.COP.toLocaleString('es-CO', { maximumFractionDigits: 2 });
+    const usdPen = rates.PEN.toLocaleString('es-PE', { maximumFractionDigits: 3 });
+    const penCop = (rates.COP / rates.PEN).toLocaleString('es-CO', { maximumFractionDigits: 1 });
 
     if (elements.rateUsdCop) elements.rateUsdCop.textContent = `1 USD = $${usdCop} COP`;
     if (elements.rateUsdPen) elements.rateUsdPen.textContent = `1 USD = S/ ${usdPen} PEN`;

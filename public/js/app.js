@@ -16,8 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
     rates: CacheManager.HARDCODED_RATES,
     activeCurrency: 'USD',
     currentAmount: 100,
-    marginActive: false,
-    marginPercent: 1.0,
     dataSource: 'initializing',
     timestamp: null,
     deferredInstallPrompt: null
@@ -45,24 +43,8 @@ document.addEventListener('DOMContentLoaded', () => {
    */
   function loadSavedPreferences() {
     const saved = CacheManager.getSettings();
-    state.marginActive = saved.marginActive || false;
-    state.marginPercent = saved.marginPercent || 1.0;
     state.activeCurrency = saved.lastActiveCurrency || 'USD';
     state.currentAmount = saved.lastAmount || 100;
-
-    // Sincronizar UI con preferencias
-    if (View.elements.marginToggle) {
-      View.elements.marginToggle.checked = state.marginActive;
-    }
-    if (View.elements.marginSlider) {
-      View.elements.marginSlider.value = state.marginPercent;
-    }
-    if (View.elements.marginValueDisplay) {
-      View.elements.marginValueDisplay.textContent = `${state.marginPercent.toFixed(1)}%`;
-    }
-    if (View.elements.marginInfoBox) {
-      View.elements.marginInfoBox.style.display = state.marginActive ? 'block' : 'none';
-    }
 
     const activeInput = document.getElementById(`input-${state.activeCurrency.toLowerCase()}`);
     if (activeInput) {
@@ -91,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
         formattedAge: CacheManager.formatAge(state.timestamp)
       });
 
-      View.updateRatesDisplay(state.rates, state.marginPercent, state.marginActive);
+      View.updateRatesDisplay(state.rates);
 
       // Re-calcular divisas con las tasas actualizadas
       triggerConversion(state.activeCurrency, state.currentAmount);
@@ -114,13 +96,10 @@ document.addEventListener('DOMContentLoaded', () => {
     state.activeCurrency = sourceCurrency;
     state.currentAmount = amount;
 
-    const marginMode = state.marginActive ? 'conservative_spread' : 'none';
     const computed = Converter.calculateThreeWay(
       sourceCurrency,
       amount,
-      state.rates,
-      state.marginPercent,
-      marginMode
+      state.rates
     );
 
     // Actualizar los otros dos inputs
@@ -162,50 +141,6 @@ document.addEventListener('DOMContentLoaded', () => {
         syncRates(true);
       });
     }
-
-    // Toggle de margen conservador
-    if (View.elements.marginToggle) {
-      View.elements.marginToggle.addEventListener('change', (e) => {
-        state.marginActive = e.target.checked;
-        if (View.elements.marginInfoBox) {
-          View.elements.marginInfoBox.style.display = state.marginActive ? 'block' : 'none';
-        }
-        CacheManager.saveSettings({ marginActive: state.marginActive });
-        View.updateRatesDisplay(state.rates, state.marginPercent, state.marginActive);
-        triggerConversion(state.activeCurrency, state.currentAmount);
-
-        View.showToast(state.marginActive ? `Margen conservador del ${state.marginPercent}% activado` : 'Margen desactivado (tasa interbancaria)', 'info');
-      });
-    }
-
-    // Slider de porcentaje del margen conservador
-    if (View.elements.marginSlider) {
-      View.elements.marginSlider.addEventListener('input', (e) => {
-        state.marginPercent = parseFloat(e.target.value) || 1.0;
-        if (View.elements.marginValueDisplay) {
-          View.elements.marginValueDisplay.textContent = `${state.marginPercent.toFixed(1)}%`;
-        }
-        CacheManager.saveSettings({ marginPercent: state.marginPercent });
-        View.updateRatesDisplay(state.rates, state.marginPercent, state.marginActive);
-        if (state.marginActive) {
-          triggerConversion(state.activeCurrency, state.currentAmount);
-        }
-      });
-    }
-
-    // Chips de valores rápidos (Preset Buttons)
-    document.querySelectorAll('.preset-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const amount = parseFloat(btn.dataset.amount);
-        const curr = btn.dataset.currency || state.activeCurrency;
-        const targetInput = document.getElementById(`input-${curr.toLowerCase()}`);
-        if (targetInput) {
-          targetInput.value = amount;
-          triggerConversion(curr, amount);
-          targetInput.focus();
-        }
-      });
-    });
 
     // Botón de limpiar todo
     const btnClear = document.getElementById('btn-clear');
