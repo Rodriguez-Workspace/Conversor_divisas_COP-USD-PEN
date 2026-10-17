@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: currency-pwa
+    runtime: node
+    plan: free
+    region: oregon
+    buildCommand: npm ci --only=production
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: CACHE_TTL_SECONDS
+        value: 3600

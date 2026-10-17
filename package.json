@@ -1,0 +1,31 @@
+{
+  "name": "currency-pwa",
+  "version": "1.0.0",
+  "description": "PWA de conversión de divisas COP ⇄ USD ⇄ PEN con arquitectura modular y soporte offline",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "node --test"
+  },
+  "keywords": [
+    "currency",
+    "converter",
+    "pwa",
+    "cop",
+    "usd",
+    "pen",
+    "offline-first"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "compression": "^1.7.5",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

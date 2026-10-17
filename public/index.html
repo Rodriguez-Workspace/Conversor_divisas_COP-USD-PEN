@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Conversor de Divisas | COP ⇄ USD ⇄ PEN</title>
+  
+  <meta name="description" content="Conversor de divisas instantáneo para Peso Colombiano (COP), Dólar (USD) y Sol Peruano (PEN) con soporte offline y margen conservador.">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Conversor">
+
+  <!-- Iconos e Instalación PWA -->
+  <link rel="icon" type="image/svg+xml" href="/icons/icon.svg">
+  <link rel="apple-touch-icon" href="/icons/icon.svg">
+  <link rel="manifest" href="/manifest.json">
+
+  <!-- Estilos del Sistema -->
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <div class="app-container">
+    
+    <!-- Encabezado Principal -->
+    <header class="app-header">
+      <div class="brand">
+        <img src="/icons/icon.svg" alt="Icono Conversor" class="brand-icon" width="36" height="36">
+        <div>
+          <h1 class="brand-title">Conversor de Divisas</h1>
+          <p class="brand-subtitle">COP ⇄ USD ⇄ PEN</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <div class="network-badge" id="network-badge" title="Estado de la conexión">
+          <span class="network-dot" id="network-dot"></span>
+          <span id="network-status">En línea</span>
+        </div>
+        <button id="btn-refresh" class="icon-btn" title="Actualizar cotización" aria-label="Actualizar tasas de cambio">
+          <svg id="refresh-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+          </svg>
+        </button>
+        <button id="btn-clear" class="icon-btn" title="Limpiar campos" aria-label="Limpiar inputs">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Banner de Instalación PWA (Solo se muestra cuando está disponible) -->
+    <aside id="install-banner" class="install-banner">
+      <span class="install-text">📱 Instala esta aplicación para usarla sin conexión en tu dispositivo</span>
+      <div class="install-actions">
+        <button id="btn-install" class="btn-primary">Instalar</button>
+        <button id="btn-close-install" class="icon-btn" aria-label="Cerrar aviso">&times;</button>
+      </div>
+    </aside>
+
+    <main>
+      <!-- Tarjetas de Entrada de Divisas (3-Way Binding) -->
+      <section class="cards-wrapper" aria-label="Campos de conversión de divisas">
+        
+        <!-- Tarjeta USD -->
+        <article class="currency-card" id="card-usd">
+          <div class="card-top">
+            <div class="currency-identity">
+              <span class="currency-flag" aria-hidden="true">🇺🇸</span>
+              <span class="currency-code usd">USD</span>
+              <span class="currency-name">Dólar estadounidense</span>
+            </div>
+            <span class="currency-symbol">USD ($)</span>
+          </div>
+          <div class="card-input-row">
+            <span class="input-prefix">$</span>
+            <input 
+              type="text" 
+              inputmode="decimal" 
+              id="input-usd" 
+              class="currency-input" 
+              placeholder="0.00" 
+              autocomplete="off"
+              aria-label="Monto en Dólares Estadounidenses"
+            >
+          </div>
+          <div class="preset-bar">
+            <button type="button" class="preset-btn" data-currency="USD" data-amount="10">+10</button>
+            <button type="button" class="preset-btn" data-currency="USD" data-amount="50">+50</button>
+            <button type="button" class="preset-btn" data-currency="USD" data-amount="100">100</button>
+            <button type="button" class="preset-btn" data-currency="USD" data-amount="500">500</button>
+            <button type="button" class="preset-btn" data-currency="USD" data-amount="1000">1K</button>
+          </div>
+        </article>
+
+        <!-- Tarjeta COP -->
+        <article class="currency-card" id="card-cop">
+          <div class="card-top">
+            <div class="currency-identity">
+              <span class="currency-flag" aria-hidden="true">🇨🇴</span>
+              <span class="currency-code cop">COP</span>
+              <span class="currency-name">Peso colombiano</span>
+            </div>
+            <span class="currency-symbol">COP ($)</span>
+          </div>
+          <div class="card-input-row">
+            <span class="input-prefix">$</span>
+            <input 
+              type="text" 
+              inputmode="decimal" 
+              id="input-cop" 
+              class="currency-input" 
+              placeholder="0" 
+              autocomplete="off"
+              aria-label="Monto en Pesos Colombianos"
+            >
+          </div>
+          <div class="preset-bar">
+            <button type="button" class="preset-btn" data-currency="COP" data-amount="50000">50K</button>
+            <button type="button" class="preset-btn" data-currency="COP" data-amount="100000">100K</button>
+            <button type="button" class="preset-btn" data-currency="COP" data-amount="500000">500K</button>
+            <button type="button" class="preset-btn" data-currency="COP" data-amount="1000000">1M</button>
+            <button type="button" class="preset-btn" data-currency="COP" data-amount="2000000">2M</button>
+          </div>
+        </article>
+
+        <!-- Tarjeta PEN -->
+        <article class="currency-card" id="card-pen">
+          <div class="card-top">
+            <div class="currency-identity">
+              <span class="currency-flag" aria-hidden="true">🇵🇪</span>
+              <span class="currency-code pen">PEN</span>
+              <span class="currency-name">Sol peruano</span>
+            </div>
+            <span class="currency-symbol">PEN (S/)</span>
+          </div>
+          <div class="card-input-row">
+            <span class="input-prefix">S/</span>
+            <input 
+              type="text" 
+              inputmode="decimal" 
+              id="input-pen" 
+              class="currency-input" 
+              placeholder="0.00" 
+              autocomplete="off"
+              aria-label="Monto en Soles Peruanos"
+            >
+          </div>
+          <div class="preset-bar">
+            <button type="button" class="preset-btn" data-currency="PEN" data-amount="50">+50</button>
+            <button type="button" class="preset-btn" data-currency="PEN" data-amount="100">100</button>
+            <button type="button" class="preset-btn" data-currency="PEN" data-amount="200">200</button>
+            <button type="button" class="preset-btn" data-currency="PEN" data-amount="500">500</button>
+            <button type="button" class="preset-btn" data-currency="PEN" data-amount="1000">1K</button>
+          </div>
+        </article>
+
+      </section>
+
+      <!-- Barra Informativa de Cotizaciones Cruzadas -->
+      <section class="reference-rates-bar" aria-label="Cotizaciones de referencia">
+        <div class="ref-rate-item">
+          <span id="rate-usd-cop">1 USD = ... COP</span>
+        </div>
+        <div class="ref-rate-item">
+          <span id="rate-usd-pen">1 USD = ... PEN</span>
+        </div>
+        <div class="ref-rate-item">
+          <span id="rate-pen-cop">1 PEN = ... COP</span>
+        </div>
+      </section>
+
+      <!-- Configuración de Margen Conservador (Protección Cambiaria) -->
+      <section class="settings-section">
+        <div class="section-header">
+          <div class="section-title-wrap">
+            <span class="section-title">Margen Conservador de Seguridad</span>
+            <span class="section-desc">Ajusta un colchón de protección cambiaria para compras o presupuestos</span>
+          </div>
+          <label class="switch" aria-label="Activar margen conservador">
+            <input type="checkbox" id="margin-toggle">
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div id="margin-info-box" class="margin-controls" style="display: none;">
+          <div class="slider-row">
+            <input type="range" id="margin-slider" class="range-input" min="0.5" max="5.0" step="0.5" value="1.0">
+            <span id="margin-value-display" class="range-value">1.0%</span>
+          </div>
+          <p class="margin-help-text">
+            Aplica un spread de seguridad conservador sobre la tasa interbancaria, simulando costos reales de adquisición o variabilidad del mercado.
+          </p>
+        </div>
+      </section>
+
+      <!-- Panel de Estado de Caché y Auditoría de Datos -->
+      <section class="status-panel" aria-label="Estado de sincronización">
+        <div class="status-meta">
+          <span id="source-badge" class="status-badge badge-server-cache">Iniciando...</span>
+          <span class="status-time" id="sync-time">sincronizando...</span>
+        </div>
+        <div style="font-size: 0.7rem; color: var(--text-subtle);">
+          TTL: 1h (RAM) + Offline
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Notificaciones Toast -->
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <!-- Pie de Página Sobrio -->
+    <footer class="app-footer">
+      <p>PWA Monolítica Modular • Node.js + Vanilla JS • Offline First</p>
+    </footer>
+
+  </div>
+
+  <!-- Scripts en orden de inyección limpia -->
+  <script src="/js/core/converter.js"></script>
+  <script src="/js/core/cacheManager.js"></script>
+  <script src="/js/services/api.js"></script>
+  <script src="/js/ui/view.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>
