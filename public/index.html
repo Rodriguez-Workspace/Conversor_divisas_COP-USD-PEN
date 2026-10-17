@@ -135,17 +135,13 @@
 
       </section>
 
-      <!-- Barra Informativa de Cotizaciones Cruzadas -->
-      <section class="reference-rates-bar" aria-label="Cotizaciones de referencia">
-        <div class="ref-rate-item">
-          <span id="rate-usd-cop">1 USD = ... COP</span>
-        </div>
-        <div class="ref-rate-item">
-          <span id="rate-usd-pen">1 USD = ... PEN</span>
-        </div>
-        <div class="ref-rate-item">
-          <span id="rate-pen-cop">1 PEN = ... COP</span>
-        </div>
+      <!-- Barra Informativa en Una Sola Línea -->
+      <section class="reference-rates-bar" id="reference-rates-bar" aria-label="Cotizaciones de referencia">
+        <span class="ref-col" id="rate-base">1 USD</span>
+        <span class="ref-divider" aria-hidden="true">•</span>
+        <span class="ref-col" id="rate-usd-pen">... PEN</span>
+        <span class="ref-divider" aria-hidden="true">•</span>
+        <span class="ref-col" id="rate-pen-cop">... COP</span>
       </section>
 
       <!-- Panel de Estado de Caché y Auditoría de Datos -->

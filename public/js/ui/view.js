@@ -18,8 +18,9 @@
     inputCOP: document.getElementById('input-cop'),
     inputPEN: document.getElementById('input-pen'),
 
-    // Etiquetas y badges de ayuda
-    rateUsdCop: document.getElementById('rate-usd-cop'),
+    // Elementos de la barra informativa en una sola línea
+    refRatesBar: document.getElementById('reference-rates-bar'),
+    rateBase: document.getElementById('rate-base'),
     rateUsdPen: document.getElementById('rate-usd-pen'),
     ratePenCop: document.getElementById('rate-pen-cop'),
 
@@ -60,18 +61,23 @@
   }
 
   /**
-   * Actualiza las tarjetas informativas de tasas cruzadas en la interfaz
+   * Actualiza la barra informativa en una sola línea limpia:
+   * 1 USD • 3.434 PEN • 926,76 COP
    */
   function updateRatesDisplay(rates) {
     if (!rates || !rates.COP || !rates.PEN) return;
 
-    const usdCop = rates.COP.toLocaleString('es-CO', { maximumFractionDigits: 2 });
-    const usdPen = rates.PEN.toLocaleString('es-PE', { maximumFractionDigits: 3 });
-    const penCop = (rates.COP / rates.PEN).toLocaleString('es-CO', { maximumFractionDigits: 1 });
+    const usdPen = Number(rates.PEN).toLocaleString('es-PE', { minimumFractionDigits: 3, maximumFractionDigits: 3 });
+    const penCop = Number(rates.COP / rates.PEN).toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const usdCop = Number(rates.COP).toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-    if (elements.rateUsdCop) elements.rateUsdCop.textContent = `1 USD = $${usdCop} COP`;
-    if (elements.rateUsdPen) elements.rateUsdPen.textContent = `1 USD = S/ ${usdPen} PEN`;
-    if (elements.ratePenCop) elements.ratePenCop.textContent = `1 PEN = $${penCop} COP`;
+    if (elements.rateBase) elements.rateBase.textContent = '1 USD';
+    if (elements.rateUsdPen) elements.rateUsdPen.textContent = `${usdPen} PEN`;
+    if (elements.ratePenCop) elements.ratePenCop.textContent = `${penCop} COP`;
+
+    if (elements.refRatesBar) {
+      elements.refRatesBar.title = `1 USD = ${usdPen} PEN | 1 PEN = ${penCop} COP | 1 USD = $${usdCop} COP`;
+    }
   }
 
   /**
