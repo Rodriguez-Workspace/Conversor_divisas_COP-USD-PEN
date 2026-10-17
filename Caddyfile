@@ -1,6 +1,0 @@
-# Configuración de Caddy con HTTPS automático
-# Reemplaza :80 por tu dominio (ej: conversor.tudominio.com) para certificado SSL automático gratis
-
-:80 {
-    reverse_proxy app:3000
-}
