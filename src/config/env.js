@@ -26,7 +26,20 @@ const env = {
     PEN: 3.43
   },
 
-  PUBLIC_DIR: path.join(__dirname, '../../public')
+  PUBLIC_DIR: (() => {
+    const fs = require('fs');
+    const candidates = [
+      path.join(__dirname, '../../public'),
+      path.join(__dirname, '../public'),
+      path.join(process.cwd(), 'public')
+    ];
+    for (const dir of candidates) {
+      if (fs.existsSync(dir)) {
+        return dir;
+      }
+    }
+    return path.join(process.cwd(), 'public');
+  })()
 };
 
 module.exports = Object.freeze(env);

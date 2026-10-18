@@ -357,11 +357,15 @@ document.addEventListener('DOMContentLoaded', () => {
           .then((reg) => {
             console.log('[ServiceWorker] Registrado con éxito. Ámbito:', reg.scope);
 
+            // Forzar búsqueda de actualizaciones en segundo plano
+            reg.update();
+
             reg.addEventListener('updatefound', () => {
               const newWorker = reg.installing;
               newWorker.addEventListener('statechange', () => {
                 if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                  View.showToast('Nueva versión disponible. Actualiza para ver cambios.', 'info');
+                  console.log('[ServiceWorker] Nueva versión disponible');
+                  View.showToast('Actualizando a la última versión...', 'info');
                 }
               });
             });
@@ -369,6 +373,15 @@ document.addEventListener('DOMContentLoaded', () => {
           .catch((err) => {
             console.warn('[ServiceWorker] Falló el registro:', err);
           });
+      });
+
+      // Recargar automáticamente cuando el nuevo Service Worker toma el control
+      let refreshing = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!refreshing) {
+          refreshing = true;
+          window.location.reload();
+        }
       });
     }
   }

@@ -23,9 +23,14 @@ app.use((req, res, next) => {
   res.setHeader('X-Frame-Options', 'DENY');
   res.setHeader('X-XSS-Protection', '1; mode=block');
 
-  // El Service Worker no debe ser guardado agresivamente en caché del navegador
-  if (req.path === '/sw.js') {
+  // El Service Worker e index.html no deben ser guardados agresivamente en caché
+  if (req.path === '/sw.js' || req.path === '/' || req.path.endsWith('.html')) {
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+  }
+
+  if (req.path === '/sw.js') {
     res.setHeader('Content-Type', 'application/javascript');
     res.setHeader('Service-Worker-Allowed', '/');
   }
@@ -38,14 +43,16 @@ app.use('/api', apiRoutes);
 
 // Servir archivos estáticos del Frontend PWA
 app.use(express.static(env.PUBLIC_DIR, {
-  maxAge: env.NODE_ENV === 'production' ? '1d' : '0',
+  maxAge: '0', // Revalidar siempre para reflejar deploys inmediatamente
   setHeaders: (res, filePath) => {
     // Configuración específica para PWA
     if (filePath.endsWith('manifest.json')) {
       res.setHeader('Content-Type', 'application/manifest+json');
     }
-    if (filePath.endsWith('sw.js')) {
-      res.setHeader('Cache-Control', 'no-cache');
+    if (filePath.endsWith('sw.js') || filePath.endsWith('index.html')) {
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
     }
   }
 }));
@@ -55,6 +62,9 @@ app.get('*', (req, res) => {
   if (req.path.startsWith('/api')) {
     return res.status(404).json({ error: 'Endpoint no encontrado' });
   }
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
   res.sendFile(path.join(env.PUBLIC_DIR, 'index.html'));
 });
 

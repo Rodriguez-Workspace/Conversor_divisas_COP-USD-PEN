@@ -122,7 +122,7 @@ async function networkFirstApiStrategy(request) {
  */
 async function staleWhileRevalidateStrategy(request) {
   const cache = await caches.open(CACHE_NAME);
-  const cachedResponse = await cache.match(request);
+  const cachedResponse = await cache.match(request, { ignoreSearch: true });
 
   const fetchPromise = fetch(request)
     .then((networkResponse) => {
