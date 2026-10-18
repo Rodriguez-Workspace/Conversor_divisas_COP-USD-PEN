@@ -154,7 +154,7 @@
       marginPercent: 1.0, // 1% de margen conservador por defecto
       lastActiveCurrency: 'USD',
       theme: 'auto',
-      lastAmount: 100
+      lastAmount: 1
     };
 
     try {

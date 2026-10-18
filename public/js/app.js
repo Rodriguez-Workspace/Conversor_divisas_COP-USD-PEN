@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const state = {
     rates: CacheManager.HARDCODED_RATES,
     activeCurrency: 'USD',
-    currentAmount: 100,
+    currentAmount: 1,
     dataSource: 'initializing',
     timestamp: null,
     deferredInstallPrompt: null
@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Cargar datos iniciales
     await syncRates(false);
 
-    // Ejecutar primera conversión con valor predeterminado
+    // Ejecutar primera conversión con valor predeterminado (1 USD)
     triggerConversion(state.activeCurrency, state.currentAmount);
   }
 
@@ -44,7 +44,8 @@ document.addEventListener('DOMContentLoaded', () => {
   function loadSavedPreferences() {
     const saved = CacheManager.getSettings();
     state.activeCurrency = saved.lastActiveCurrency || 'USD';
-    state.currentAmount = saved.lastAmount || 100;
+    // Por defecto 1 USD (migrando cualquier residuo de 100 anterior)
+    state.currentAmount = (saved.lastAmount && saved.lastAmount !== 100) ? saved.lastAmount : 1;
 
     const activeInput = document.getElementById(`input-${state.activeCurrency.toLowerCase()}`);
     if (activeInput) {
