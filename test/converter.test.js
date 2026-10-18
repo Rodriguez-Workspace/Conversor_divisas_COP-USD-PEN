@@ -61,3 +61,13 @@ test('Converter - parseInputNumber', () => {
   assert.equal(Converter.parseInputNumber(''), 0);
   assert.equal(Converter.parseInputNumber(null), 0);
 });
+
+test('Converter - formatNumber without forced .00', () => {
+  assert.equal(Converter.formatNumber(1000), '1,000');
+  assert.equal(Converter.formatNumber(100), '100');
+  assert.equal(Converter.formatNumber(400000), '400,000');
+  assert.equal(Converter.formatNumber(1000.5), '1,000.5');
+  assert.equal(Converter.formatNumber(1000.75), '1,000.75');
+  assert.equal(Converter.formatNumber(0), '0');
+  assert.equal(Converter.formatNumber(null), '');
+});

@@ -48,15 +48,19 @@
   function updateCurrencyInputs(amounts, activeCurrency) {
     if (!amounts) return;
 
+    const format = (val) => {
+      if (val === null || val === undefined || isNaN(val) || val === 0) return '';
+      return window.Converter ? window.Converter.formatNumber(val) : String(val);
+    };
+
     if (activeCurrency !== 'USD' && elements.inputUSD) {
-      elements.inputUSD.value = amounts.USD ? amounts.USD.toFixed(2) : '';
+      elements.inputUSD.value = format(amounts.USD);
     }
     if (activeCurrency !== 'COP' && elements.inputCOP) {
-      // Para COP en edición mostramos entero o 2 decimales según convenga
-      elements.inputCOP.value = amounts.COP ? (amounts.COP % 1 === 0 ? amounts.COP.toFixed(0) : amounts.COP.toFixed(2)) : '';
+      elements.inputCOP.value = format(amounts.COP);
     }
     if (activeCurrency !== 'PEN' && elements.inputPEN) {
-      elements.inputPEN.value = amounts.PEN ? amounts.PEN.toFixed(2) : '';
+      elements.inputPEN.value = format(amounts.PEN);
     }
   }
 

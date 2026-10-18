@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const activeInput = document.getElementById(`input-${state.activeCurrency.toLowerCase()}`);
     if (activeInput) {
-      activeInput.value = state.currentAmount;
+      activeInput.value = Converter.formatNumber(state.currentAmount);
     }
   }
 
@@ -122,9 +122,57 @@ document.addEventListener('DOMContentLoaded', () => {
       const input = document.getElementById(`input-${curr.toLowerCase()}`);
       if (!input) return;
 
-      // Escuchar entrada de datos en tiempo real
+      // Escuchar entrada de datos y formatear miles en vivo sin agregar .00 forzado
       input.addEventListener('input', (e) => {
-        const parsed = Converter.parseInputNumber(e.target.value);
+        const raw = e.target.value;
+        if (!raw) {
+          triggerConversion(curr, 0);
+          return;
+        }
+
+        const cursorPos = e.target.selectionStart;
+        const charsBeforeCursor = raw.slice(0, cursorPos).replace(/,/g, '').length;
+
+        // Separar enteros y decimales respetando el punto que el usuario coloque
+        const hasDot = raw.includes('.');
+        const parts = raw.split('.');
+        const integerDigits = parts[0].replace(/[^0-9]/g, '');
+
+        if (!integerDigits && !hasDot) {
+          e.target.value = '';
+          triggerConversion(curr, 0);
+          return;
+        }
+
+        // Formato con comas para miles (1000 -> 1,000)
+        const formattedInt = integerDigits ? Number(integerDigits).toLocaleString('en-US') : (hasDot ? '0' : '');
+
+        // Preservar la parte decimal exacta que el usuario coloque (NUNCA agregar .00 automático)
+        let formattedValue = formattedInt;
+        if (hasDot) {
+          const decimalDigits = (parts[1] || '').replace(/[^0-9]/g, '').slice(0, 2);
+          formattedValue = `${formattedInt}.${decimalDigits}`;
+        }
+
+        e.target.value = formattedValue;
+
+        // Reposicionar el cursor exactamente donde estaba el usuario
+        let newCursorPos = 0;
+        let countedChars = 0;
+        for (let i = 0; i < formattedValue.length; i++) {
+          if (countedChars === charsBeforeCursor) {
+            newCursorPos = i;
+            break;
+          }
+          if (formattedValue[i] !== ',') {
+            countedChars++;
+          }
+          newCursorPos = i + 1;
+        }
+        e.target.setSelectionRange(newCursorPos, newCursorPos);
+
+        const cleanNumber = formattedValue.replace(/,/g, '');
+        const parsed = parseFloat(cleanNumber) || 0;
         triggerConversion(curr, parsed);
       });
 

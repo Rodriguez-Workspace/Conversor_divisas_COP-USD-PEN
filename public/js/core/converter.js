@@ -102,27 +102,32 @@
   }
 
   /**
-   * Formatea un número según las reglas estándar de cada divisa
-   * - COP: típicamente sin decimales o máx 2, separador de miles '.' y decimal ','
-   * - USD: 2 decimales fijos, separador de miles ',' y decimal '.'
-   * - PEN: 2 decimales fijos, separador de miles ',' y decimal '.'
+  /**
+   * Formatea un número con separadores de miles (,) SIN agregar .00 forzado.
+   * Solo muestra decimales si realmente existen.
    */
-  function formatCurrency(amount, currency, options = {}) {
-    if (amount === null || amount === undefined || isNaN(amount)) {
-      return '0.00';
+  function formatNumber(amount, maxDecimals = 2) {
+    if (amount === null || amount === undefined || amount === '' || isNaN(amount)) {
+      return '';
     }
 
     const value = Number(amount);
-    const decimals = currency === 'COP'
-      ? (options.showCopDecimals ? 2 : 0)
-      : 2;
+    if (value === 0) return '0';
 
-    const locales = currency === 'COP' ? 'es-CO' : (currency === 'PEN' ? 'es-PE' : 'en-US');
+    const factor = Math.pow(10, maxDecimals);
+    const rounded = Math.round(value * factor) / factor;
 
-    return new Intl.NumberFormat(locales, {
-      minimumFractionDigits: decimals,
-      maximumFractionDigits: decimals
-    }).format(value);
+    if (rounded % 1 === 0) {
+      return rounded.toLocaleString('en-US', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      });
+    }
+
+    return rounded.toLocaleString('en-US', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: maxDecimals
+    });
   }
 
   /**
@@ -184,7 +189,7 @@
     getExchangeRate,
     convert,
     calculateThreeWay,
-    formatCurrency,
+    formatNumber,
     parseInputNumber
   };
 }));
