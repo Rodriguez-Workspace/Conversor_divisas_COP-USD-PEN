@@ -71,3 +71,43 @@ test('Converter - formatNumber without forced .00', () => {
   assert.equal(Converter.formatNumber(0), '0');
   assert.equal(Converter.formatNumber(null), '');
 });
+
+test('Converter - cleanNumericString removes letters, symbols and enforces max 1 dot', () => {
+  assert.equal(Converter.cleanNumericString('1000'), '1000');
+  assert.equal(Converter.cleanNumericString('1,000'), '1000');
+  assert.equal(Converter.cleanNumericString('abc1000def'), '1000');
+  assert.equal(Converter.cleanNumericString('$1,234.56'), '1234.56');
+  assert.equal(Converter.cleanNumericString('100.50.75'), '100.5075');
+  assert.equal(Converter.cleanNumericString('abc'), '');
+  assert.equal(Converter.cleanNumericString(''), '');
+  assert.equal(Converter.cleanNumericString(null), '');
+});
+
+test('Converter - isValidNumericChar blocks letters, symbols, commas and duplicate dots', () => {
+  // Dígitos válidos
+  assert.equal(Converter.isValidNumericChar('0'), true);
+  assert.equal(Converter.isValidNumericChar('5'), true);
+  assert.equal(Converter.isValidNumericChar('9'), true);
+
+  // Letras bloqueadas
+  assert.equal(Converter.isValidNumericChar('a'), false);
+  assert.equal(Converter.isValidNumericChar('Z'), false);
+  assert.equal(Converter.isValidNumericChar('e'), false); // 'e' matemático bloqueado
+
+  // Comas bloqueadas (se formatean solas automáticamente)
+  assert.equal(Converter.isValidNumericChar(','), false);
+
+  // Símbolos bloqueados
+  assert.equal(Converter.isValidNumericChar('+'), false);
+  assert.equal(Converter.isValidNumericChar('-'), false);
+  assert.equal(Converter.isValidNumericChar('$'), false);
+  assert.equal(Converter.isValidNumericChar('@'), false);
+  assert.equal(Converter.isValidNumericChar(' '), false);
+
+  // Punto decimal
+  assert.equal(Converter.isValidNumericChar('.', '1000', 4, 4), true); // Sin punto previo
+  assert.equal(Converter.isValidNumericChar('.', '1,000.5', 7, 7), false); // Ya tiene punto
+  assert.equal(Converter.isValidNumericChar('.', '1,000.5', 5, 6), true); // Punto existente seleccionado para reemplazo
+  assert.equal(Converter.isValidNumericChar('.', '1,000.5', 0, 7), true); // Selección completa
+});
+

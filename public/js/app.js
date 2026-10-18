@@ -122,7 +122,95 @@ document.addEventListener('DOMContentLoaded', () => {
       const input = document.getElementById(`input-${curr.toLowerCase()}`);
       if (!input) return;
 
-      // Escuchar entrada de datos y formatear miles en vivo sin agregar .00 forzado
+      // 1. KEYDOWN: Bloquea letras, símbolos especiales, comas y puntos decimales duplicados
+      input.addEventListener('keydown', (e) => {
+        const selStart = input.selectionStart ?? 0;
+        const selEnd = input.selectionEnd ?? 0;
+
+        // Comportamiento mejorado para Backspace cuando el cursor está justo tras una coma (ej: 1|,000)
+        if (e.key === 'Backspace' && selStart === selEnd && selStart > 1 && input.value[selStart - 1] === ',') {
+          e.preventDefault();
+          const val = input.value;
+          const before = val.slice(0, selStart - 2);
+          const after = val.slice(selStart);
+          input.value = before + after;
+          const nextPos = Math.max(0, selStart - 2);
+          input.setSelectionRange(nextPos, nextPos);
+          input.dispatchEvent(new Event('input', { bubbles: true }));
+          return;
+        }
+
+        // Teclas de control del sistema y navegación permitidas siempre
+        const allowedNavKeys = [
+          'Backspace', 'Delete', 'Tab', 'Escape', 'Enter',
+          'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
+          'Home', 'End', 'PageUp', 'PageDown'
+        ];
+
+        if (allowedNavKeys.includes(e.key)) {
+          return;
+        }
+
+        // Atajos estándar con Ctrl o Meta (Cmd en Mac): Copiar, Pegar, Cortar, Seleccionar todo, Deshacer
+        if ((e.ctrlKey || e.metaKey) && ['a', 'c', 'v', 'x', 'z', 'y'].includes(e.key.toLowerCase())) {
+          return;
+        }
+
+        // Si se presiona cualquier otra combinación con modificadores, bloquear
+        if (e.ctrlKey || e.metaKey || e.altKey) {
+          e.preventDefault();
+          return;
+        }
+
+        // Validar si el carácter tecleado es dígito 0-9 o punto decimal permitido
+        const isAllowed = Converter.isValidNumericChar(e.key, input.value, selStart, selEnd);
+
+        if (!isAllowed) {
+          e.preventDefault();
+        }
+      });
+
+      // 2. BEFOREINPUT: Intercepción para teclados móviles / virtuales y texto predictivo
+      input.addEventListener('beforeinput', (e) => {
+        if (e.inputType === 'insertText' && e.data) {
+          const selStart = input.selectionStart ?? 0;
+          const selEnd = input.selectionEnd ?? 0;
+
+          for (let i = 0; i < e.data.length; i++) {
+            const char = e.data[i];
+            if (!Converter.isValidNumericChar(char, input.value, selStart, selEnd)) {
+              e.preventDefault();
+              return;
+            }
+          }
+        }
+      });
+
+      // 3. PASTE: Sanitizar pegado desde portapapeles (solo números y máximo un punto)
+      input.addEventListener('paste', (e) => {
+        e.preventDefault();
+        const clipboardText = (e.clipboardData || window.clipboardData)?.getData('text') || '';
+        if (!clipboardText) return;
+
+        const cleanedPaste = Converter.cleanNumericString(clipboardText);
+        if (!cleanedPaste) return;
+
+        const val = input.value;
+        const selStart = input.selectionStart ?? 0;
+        const selEnd = input.selectionEnd ?? 0;
+
+        const before = val.slice(0, selStart);
+        const after = val.slice(selEnd);
+        const combined = before + cleanedPaste + after;
+        const finalCleaned = Converter.cleanNumericString(combined);
+
+        input.value = finalCleaned;
+        const newCursor = Math.min(selStart + cleanedPaste.length, finalCleaned.length);
+        input.setSelectionRange(newCursor, newCursor);
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+      });
+
+      // 4. INPUT: Formatear miles en vivo sin agregar .00 forzado, preservando el cursor
       input.addEventListener('input', (e) => {
         const raw = e.target.value;
         if (!raw) {
@@ -131,7 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const cursorPos = e.target.selectionStart;
-        const charsBeforeCursor = raw.slice(0, cursorPos).replace(/,/g, '').length;
+        let charsBeforeCursor = raw.slice(0, cursorPos).replace(/,/g, '').length;
 
         // Separar enteros y decimales respetando el punto que el usuario coloque
         const hasDot = raw.includes('.');
@@ -144,13 +232,18 @@ document.addEventListener('DOMContentLoaded', () => {
           return;
         }
 
+        // Si el usuario escribe directamente punto (ej: .5), se antepone '0'
+        if (!integerDigits && hasDot) {
+          charsBeforeCursor++;
+        }
+
         // Formato con comas para miles (1000 -> 1,000)
         const formattedInt = integerDigits ? Number(integerDigits).toLocaleString('en-US') : (hasDot ? '0' : '');
 
         // Preservar la parte decimal exacta que el usuario coloque (NUNCA agregar .00 automático)
         let formattedValue = formattedInt;
         if (hasDot) {
-          const decimalDigits = (parts[1] || '').replace(/[^0-9]/g, '').slice(0, 2);
+          const decimalDigits = parts.slice(1).join('').replace(/[^0-9]/g, '').slice(0, 2);
           formattedValue = `${formattedInt}.${decimalDigits}`;
         }
 

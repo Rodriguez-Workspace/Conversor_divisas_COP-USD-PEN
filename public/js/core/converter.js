@@ -184,12 +184,79 @@
     return isNaN(parsed) ? 0 : parsed;
   }
 
+  /**
+   * Sanitiza cualquier cadena para que contenga únicamente dígitos numéricos
+   * y como máximo un único punto decimal.
+   * Remueve letras, espacios, comas y símbolos especiales.
+   *
+   * @param {string} str - Cadena de entrada
+   * @returns {string} - Cadena limpia con dígitos y máximo un punto
+   */
+  function cleanNumericString(str) {
+    if (str === null || str === undefined) return '';
+    const text = String(str);
+
+    if (!text.includes('.')) {
+      return text.replace(/[^0-9]/g, '');
+    }
+
+    const parts = text.split('.');
+    const integerPart = parts[0].replace(/[^0-9]/g, '');
+    const decimalPart = parts.slice(1).join('').replace(/[^0-9]/g, '');
+
+    return `${integerPart}.${decimalPart}`;
+  }
+
+  /**
+   * Determina si un carácter presionado o insertado es válido según las reglas:
+   * - Solo dígitos ('0'-'9')
+   * - Solo un punto decimal ('.') si no existe ya en el campo (a menos que el punto
+   *   existente esté dentro del rango de selección que será reemplazado)
+   * - No letras, no comas, no símbolos especiales
+   *
+   * @param {string} char - Carácter a evaluar (ej: '5', 'a', '.', ',')
+   * @param {string} currentValue - Valor actual del input
+   * @param {number} selStart - Inicio de la selección del cursor
+   * @param {number} selEnd - Fin de la selección del cursor
+   * @returns {boolean}
+   */
+  function isValidNumericChar(char, currentValue = '', selStart = 0, selEnd = 0) {
+    if (!char || typeof char !== 'string') return false;
+
+    // Solo se permite evaluar un carácter a la vez
+    if (char.length !== 1) return false;
+
+    // Dígitos del 0 al 9
+    if (char >= '0' && char <= '9') {
+      return true;
+    }
+
+    // Punto decimal '.' (solo uno permitido)
+    if (char === '.') {
+      const val = String(currentValue);
+      const dotIndex = val.indexOf('.');
+      if (dotIndex === -1) {
+        return true;
+      }
+      // Permitido si el punto existente está dentro del rango que será reemplazado
+      if (selStart <= dotIndex && dotIndex < selEnd) {
+        return true;
+      }
+      return false;
+    }
+
+    // Bloquear todo lo demás (letras, comas, signos matemáticos, símbolos)
+    return false;
+  }
+
   return {
     SUPPORTED_CURRENCIES,
     getExchangeRate,
     convert,
     calculateThreeWay,
     formatNumber,
-    parseInputNumber
+    parseInputNumber,
+    cleanNumericString,
+    isValidNumericChar
   };
 }));
