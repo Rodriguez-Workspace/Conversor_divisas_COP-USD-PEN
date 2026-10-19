@@ -17,8 +17,8 @@
   // Tasas de emergencia integradas (si el dispositivo está 100% offline y es primera apertura)
   const HARDCODED_RATES = {
     USD: 1.0,
-    COP: 3182.78,
-    PEN: 3.43
+    COP: 3174.49,
+    PEN: 3.44
   };
 
   /**

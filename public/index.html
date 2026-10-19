@@ -17,7 +17,7 @@
   <link rel="manifest" href="/manifest.json">
 
   <!-- Estilos del Sistema -->
-  <link rel="stylesheet" href="/css/styles.css?v=1.0.7">
+  <link rel="stylesheet" href="/css/styles.css?v=1.0.8">
 </head>
 <body>
   <div class="app-container">
@@ -141,13 +141,22 @@
 
       </section>
 
-      <!-- Barra Informativa en Una Sola Línea -->
+      <!-- Barra Informativa Referenciada a 1 USD -->
       <section class="reference-rates-bar" id="reference-rates-bar" aria-label="Cotizaciones de referencia">
-        <span class="ref-col" id="rate-base">1 USD</span>
+        <div class="ref-col" id="col-usd">
+          <span class="ref-value" id="rate-base">1 USD</span>
+          <span class="ref-sub">Base</span>
+        </div>
         <span class="ref-divider" aria-hidden="true">•</span>
-        <span class="ref-col" id="rate-usd-pen">... PEN</span>
+        <div class="ref-col" id="col-pen">
+          <span class="ref-value" id="rate-usd-pen">3.44 PEN</span>
+          <span class="ref-sub">Dólar a Soles</span>
+        </div>
         <span class="ref-divider" aria-hidden="true">•</span>
-        <span class="ref-col" id="rate-pen-cop">... COP</span>
+        <div class="ref-col" id="col-cop">
+          <span class="ref-value" id="rate-usd-cop">3.174,49 COP</span>
+          <span class="ref-sub">Dólar a Pesos</span>
+        </div>
       </section>
 
       <!-- Panel de Estado de Caché y Auditoría de Datos -->
@@ -171,10 +180,10 @@
   </div>
 
   <!-- Scripts en orden de inyección limpia -->
-  <script src="/js/core/converter.js?v=1.0.7"></script>
-  <script src="/js/core/cacheManager.js?v=1.0.7"></script>
-  <script src="/js/services/api.js?v=1.0.7"></script>
-  <script src="/js/ui/view.js?v=1.0.7"></script>
-  <script src="/js/app.js?v=1.0.7"></script>
+  <script src="/js/core/converter.js?v=1.0.8"></script>
+  <script src="/js/core/cacheManager.js?v=1.0.8"></script>
+  <script src="/js/services/api.js?v=1.0.8"></script>
+  <script src="/js/ui/view.js?v=1.0.8"></script>
+  <script src="/js/app.js?v=1.0.8"></script>
 </body>
 </html>

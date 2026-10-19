@@ -22,6 +22,7 @@
     refRatesBar: document.getElementById('reference-rates-bar'),
     rateBase: document.getElementById('rate-base'),
     rateUsdPen: document.getElementById('rate-usd-pen'),
+    rateUsdCop: document.getElementById('rate-usd-cop') || document.getElementById('rate-pen-cop'),
     ratePenCop: document.getElementById('rate-pen-cop'),
 
     // Panel de estado de datos
@@ -65,22 +66,24 @@
   }
 
   /**
-   * Actualiza la barra informativa en una sola línea limpia:
-   * 1 USD • 3.434 PEN • 926,76 COP
+   * Actualiza la barra informativa referenciando todo a 1 USD dinámico:
+   * 1 USD • 3.44 PEN (Dólar a Soles) • 3,174.49 COP (Dólar a Pesos)
    */
   function updateRatesDisplay(rates) {
     if (!rates || !rates.COP || !rates.PEN) return;
 
-    const usdPen = Number(rates.PEN).toLocaleString('es-PE', { minimumFractionDigits: 3, maximumFractionDigits: 3 });
-    const penCop = Number(rates.COP / rates.PEN).toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const usdPen = Number(rates.PEN).toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 3 });
     const usdCop = Number(rates.COP).toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const penCop = Number(rates.COP / rates.PEN).toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
     if (elements.rateBase) elements.rateBase.textContent = '1 USD';
     if (elements.rateUsdPen) elements.rateUsdPen.textContent = `${usdPen} PEN`;
-    if (elements.ratePenCop) elements.ratePenCop.textContent = `${penCop} COP`;
+    
+    const targetCop = elements.rateUsdCop || elements.ratePenCop;
+    if (targetCop) targetCop.textContent = `${usdCop} COP`;
 
     if (elements.refRatesBar) {
-      elements.refRatesBar.title = `1 USD = ${usdPen} PEN | 1 PEN = ${penCop} COP | 1 USD = $${usdCop} COP`;
+      elements.refRatesBar.title = `1 USD = ${usdPen} PEN (Dólar a Soles) | 1 USD = $${usdCop} COP (Dólar a Pesos) | 1 PEN = $${penCop} COP (Sol a Pesos)`;
     }
   }
 

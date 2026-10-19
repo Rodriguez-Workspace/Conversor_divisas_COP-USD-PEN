@@ -22,8 +22,8 @@ const env = {
   // Tasas de respaldo de emergencia (si falla la red en cold-start)
   STATIC_FALLBACK_RATES: {
     USD: 1.0,
-    COP: 3182.78,
-    PEN: 3.43
+    COP: 3174.49,
+    PEN: 3.44
   },
 
   PUBLIC_DIR: (() => {

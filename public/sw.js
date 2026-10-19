@@ -4,7 +4,7 @@
  * - API Routes (/api/rates): Network-First con fallback a caché
  */
 
-const CACHE_NAME = 'currency-pwa-v1.0.7';
+const CACHE_NAME = 'currency-pwa-v1.0.8';
 
 // Recursos críticos para funcionamiento 100% offline
 const STATIC_ASSETS = [
@@ -100,7 +100,7 @@ async function networkFirstApiStrategy(request) {
     return new Response(JSON.stringify({
       success: true,
       base: 'USD',
-      rates: { USD: 1.0, COP: 3182.78, PEN: 3.43 },
+      rates: { USD: 1.0, COP: 3174.49, PEN: 3.44 },
       timestamp: Date.now(),
       source: 'sw_offline_fallback',
       cached: true,
