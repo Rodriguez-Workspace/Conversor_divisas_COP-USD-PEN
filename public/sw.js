@@ -4,7 +4,7 @@
  * - API Routes (/api/rates): Network-First con fallback a caché
  */
 
-const CACHE_NAME = 'currency-pwa-v1.0.9';
+const CACHE_NAME = 'currency-pwa-v1.1.0';
 
 // Recursos críticos para funcionamiento 100% offline
 const STATIC_ASSETS = [
@@ -96,18 +96,13 @@ async function networkFirstApiStrategy(request) {
       return cachedResponse;
     }
 
-    // Fallback de respuesta JSON offline de emergencia
+    // Si no hay respuesta previa en caché, retornar error 503 sin inventar tasas
     return new Response(JSON.stringify({
-      success: true,
-      base: 'USD',
-      rates: { USD: 1.0, COP: 3174.49, PEN: 3.44 },
-      timestamp: Date.now(),
-      source: 'sw_offline_fallback',
-      cached: true,
-      remainingTtlSeconds: 0,
+      success: false,
+      error: 'Sin conexión a internet y sin cotizaciones previas en caché',
       offline: true
     }), {
-      status: 200,
+      status: 503,
       headers: {
         'Content-Type': 'application/json',
         'X-Service-Worker-Offline': 'true'

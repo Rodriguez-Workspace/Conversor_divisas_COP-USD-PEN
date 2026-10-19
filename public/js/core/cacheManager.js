@@ -14,13 +14,6 @@
   const STORAGE_KEY_RATES = 'currency_pwa_rates_v1';
   const STORAGE_KEY_SETTINGS = 'currency_pwa_settings_v1';
 
-  // Tasas de emergencia integradas (si el dispositivo está 100% offline y es primera apertura)
-  const HARDCODED_RATES = {
-    USD: 1.0,
-    COP: 3174.49,
-    PEN: 3.44
-  };
-
   /**
    * Guarda las tasas recibidas del servidor en localStorage
    * @param {Object} data - Respuesta del endpoint /api/rates
@@ -71,6 +64,7 @@
       case 'live_api':
       case 'primary_api':
       case 'secondary_api':
+      case 'tertiary_api':
         return {
           id: 'live',
           label: 'En vivo (Servidor)',
@@ -87,6 +81,14 @@
           description: 'Servido desde la memoria ultrarrápida del servidor.',
           isFresh: true
         };
+      case 'stale_cache':
+        return {
+          id: 'stale_cache',
+          label: 'Caché de Respaldo',
+          badgeClass: 'badge-server-cache',
+          description: 'Proveedores temporalmente inaccesibles; usando última cotización real en memoria.',
+          isFresh: false
+        };
       case 'local_storage':
       case 'offline_cache':
         return {
@@ -96,14 +98,12 @@
           description: 'Sin conexión: usando última cotización guardada en tu dispositivo.',
           isFresh: false
         };
-      case 'static_fallback':
-      case 'hardcoded_fallback':
       default:
         return {
-          id: 'fallback',
-          label: 'Referencia de Emergencia',
-          badgeClass: 'badge-fallback',
-          description: 'Tasas de referencia precargadas.',
+          id: 'offline',
+          label: 'Sin conexión',
+          badgeClass: 'badge-local-cache',
+          description: 'Sin conexión con los servicios de cotización.',
           isFresh: false
         };
     }
@@ -169,7 +169,6 @@
   }
 
   return {
-    HARDCODED_RATES,
     saveRates,
     getLocalRates,
     describeSource,

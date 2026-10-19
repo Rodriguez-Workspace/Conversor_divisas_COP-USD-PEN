@@ -12,12 +12,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const View = window.View;
 
   // Estado reactivo central de la aplicación
+  // Estado reactivo central de la aplicación
+  const initialLocal = CacheManager.getLocalRates();
   const state = {
-    rates: CacheManager.HARDCODED_RATES,
+    rates: initialLocal ? initialLocal.rates : null,
     activeCurrency: 'USD',
     currentAmount: 1,
-    dataSource: 'initializing',
-    timestamp: null,
+    dataSource: initialLocal ? 'local_storage' : 'initializing',
+    timestamp: initialLocal ? (initialLocal.serverTimestamp || initialLocal.savedAt) : null,
     deferredInstallPrompt: null
   };
 
@@ -31,11 +33,19 @@ document.addEventListener('DOMContentLoaded', () => {
     registerServiceWorker();
     startAgeTicker();
 
-    // Cargar datos iniciales
+    // Si ya existían tasas reales en localStorage, pintar interfaz inicial
+    if (state.rates) {
+      View.updateRatesDisplay(state.rates);
+      triggerConversion(state.activeCurrency, state.currentAmount);
+    }
+
+    // Consultar tasas en vivo desde el servidor
     await syncRates(false);
 
-    // Ejecutar primera conversión con valor predeterminado (1 USD)
-    triggerConversion(state.activeCurrency, state.currentAmount);
+    // Re-evaluar conversión con tasas en vivo
+    if (state.rates) {
+      triggerConversion(state.activeCurrency, state.currentAmount);
+    }
   }
 
   /**
@@ -61,6 +71,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     try {
       const result = await ApiService.fetchRates({ forceRefresh });
+      if (!result || !result.rates) {
+        throw new Error('No se obtuvieron tasas de cambio válidas');
+      }
+
       state.rates = result.rates;
       state.dataSource = result.source;
       state.timestamp = result.timestamp;
@@ -84,7 +98,15 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     } catch (err) {
       console.error('[App] Error al sincronizar:', err);
-      View.showToast('No fue posible sincronizar tasas en este momento', 'error');
+      if (!state.rates) {
+        View.updateStatusPanel({
+          label: 'Sin conexión',
+          badgeClass: 'badge-local-cache',
+          description: 'No se pudieron consultar tasas y no hay datos previos.',
+          formattedAge: 'Sin datos'
+        });
+      }
+      View.showToast(err.message || 'No fue posible sincronizar tasas en este momento', 'error');
     } finally {
       View.setRefreshLoading(false);
     }
@@ -96,6 +118,10 @@ document.addEventListener('DOMContentLoaded', () => {
   function triggerConversion(sourceCurrency, amount) {
     state.activeCurrency = sourceCurrency;
     state.currentAmount = amount;
+
+    if (!state.rates) {
+      return;
+    }
 
     const computed = Converter.calculateThreeWay(
       sourceCurrency,

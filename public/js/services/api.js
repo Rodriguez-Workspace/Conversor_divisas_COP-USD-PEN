@@ -81,18 +81,8 @@
         };
       }
 
-      // 2. Si no hay nada en caché local, usar tasas de emergencia embebidas
-      return {
-        rates: CacheManager.HARDCODED_RATES,
-        crossRates: null,
-        base: 'USD',
-        timestamp: Date.now(),
-        source: 'hardcoded_fallback',
-        cached: false,
-        remainingTtlSeconds: 0,
-        isOffline: true,
-        warning: 'Sin conexión ni datos previos. Usando tasas referenciales de emergencia.'
-      };
+      // 2. Si no hay historial previo en almacenamiento local, reportar error sin inventar tasas
+      throw new Error('Sin conexión con el servidor y no hay tasas previas almacenadas en el dispositivo');
     }
   }
 

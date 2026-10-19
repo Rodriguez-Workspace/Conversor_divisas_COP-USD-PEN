@@ -73,7 +73,7 @@ class ExchangeService {
       console.warn(`[ExchangeService] Falló API primaria (${err.message}). Intentando API secundaria...`);
     }
 
-    // Intento 2: API Secundaria de respaldo
+    // Intento 2: API Secundaria de respaldo (CDN Mirror)
     if (!fetchedRates) {
       try {
         fetchedRates = await this.fetchWithTimeout(env.FALLBACK_API_URL, env.UPSTREAM_TIMEOUT_MS, (data) => {
@@ -88,13 +88,32 @@ class ExchangeService {
         });
         providerSource = 'secondary_api';
       } catch (err) {
-        console.warn(`[ExchangeService] Falló API secundaria (${err.message}).`);
+        console.warn(`[ExchangeService] Falló API secundaria (${err.message}). Intentando API terciaria...`);
       }
     }
 
-    // Intento 3: Si ambas fallaron, usar caché anterior (incluso si está expirada)
+    // Intento 3: API Terciaria de respaldo (Edge Mirror Cloudflare Pages)
+    if (!fetchedRates) {
+      try {
+        fetchedRates = await this.fetchWithTimeout(env.TERTIARY_API_URL, env.UPSTREAM_TIMEOUT_MS, (data) => {
+          if (data && data.usd && data.usd.cop && data.usd.pen) {
+            return {
+              USD: 1.0,
+              COP: parseFloat(data.usd.cop),
+              PEN: parseFloat(data.usd.pen)
+            };
+          }
+          return null;
+        });
+        providerSource = 'tertiary_api';
+      } catch (err) {
+        console.warn(`[ExchangeService] Falló API terciaria (${err.message}).`);
+      }
+    }
+
+    // Intento 4: Si todas fallaron pero existe historial previo real en memoria RAM, usarlo
     if (!fetchedRates && this.cache) {
-      console.warn('[ExchangeService] Usando caché previa en RAM debido a fallo de red.');
+      console.warn('[ExchangeService] Usando tasas previas reales en memoria RAM debido a indisponibilidad de proveedores externos.');
       return {
         success: true,
         base: 'USD',
@@ -105,16 +124,14 @@ class ExchangeService {
         source: 'stale_cache',
         ttlSeconds: env.CACHE_TTL_SECONDS,
         remainingTtlSeconds: 0,
-        warning: 'Tasas servidas desde caché degradada por indisponibilidad de proveedor',
+        warning: 'Tasas servidas desde caché degradada por indisponibilidad temporal de los proveedores de divisas',
         serverTime: new Date(requestTime).toISOString()
       };
     }
 
-    // Intento 4: Si es cold-start sin red, usar respaldo estático
+    // Intento 5: Cold-start sin conectividad y sin historial previo: Rechazar sin inventar datos falsos
     if (!fetchedRates) {
-      console.error('[ExchangeService] Advertencia crítica: Usando tasas estáticas de emergencia.');
-      fetchedRates = { ...env.STATIC_FALLBACK_RATES };
-      providerSource = 'static_fallback';
+      throw new Error('No fue posible consultar las cotizaciones en vivo desde ningún proveedor (Primary, Secondary, Tertiary) y no existe historial previo en caché');
     }
 
     // Guardar en memoria RAM con su tiempo de expiración

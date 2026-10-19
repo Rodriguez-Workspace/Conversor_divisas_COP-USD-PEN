@@ -22,10 +22,10 @@ const rateController = {
 
       return res.status(200).json(result);
     } catch (error) {
-      console.error('[RateController] Error al obtener tasas:', error);
-      return res.status(500).json({
+      console.error('[RateController] Error al obtener tasas:', error.message);
+      return res.status(503).json({
         success: false,
-        error: 'Error interno al consultar las tasas de cambio',
+        error: 'No se pudieron obtener cotizaciones en vivo desde los proveedores oficiales',
         details: process.env.NODE_ENV === 'development' ? error.message : undefined
       });
     }
