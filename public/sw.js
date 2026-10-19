@@ -4,7 +4,7 @@
  * - API Routes (/api/rates): Network-First con fallback a caché
  */
 
-const CACHE_NAME = 'currency-pwa-v1.0.8';
+const CACHE_NAME = 'currency-pwa-v1.0.9';
 
 // Recursos críticos para funcionamiento 100% offline
 const STATIC_ASSETS = [

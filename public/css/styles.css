@@ -236,41 +236,28 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-around;
-  padding: 0.6rem 0.85rem;
+  padding: 0.65rem 0.85rem;
   background-color: rgba(30, 41, 59, 0.5);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   font-weight: 600;
   color: var(--text-muted);
   white-space: nowrap;
 }
 
 .ref-col {
-  display: flex;
-  flex-direction: column;
+  display: inline-flex;
   align-items: center;
-  text-align: center;
-}
-
-.ref-value {
   color: var(--text-main);
-  font-size: 0.88rem;
-  font-weight: 700;
-  letter-spacing: 0.01em;
-}
-
-.ref-sub {
-  font-size: 0.66rem;
-  font-weight: 500;
-  color: var(--text-subtle);
-  margin-top: 1px;
+  letter-spacing: 0.02em;
+  font-weight: 600;
 }
 
 .ref-divider {
   color: var(--text-subtle);
-  opacity: 0.4;
-  font-size: 0.8rem;
+  opacity: 0.5;
+  font-size: 0.75rem;
   user-select: none;
 }
 
